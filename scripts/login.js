@@ -1,6 +1,6 @@
 window.addEventListener("load", function () {
     /* -------------------------------------------------------------------------- */
-    /*                 Login de usuarios previamente registradosX                 */
+    /*                 Login de usuarios previamente registrados                 */
     /* -------------------------------------------------------------------------- */
     const email = this.document.querySelector("#inputEmail");
     const password = this.document.querySelector("#inputPassword");

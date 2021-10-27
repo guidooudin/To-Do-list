@@ -1,5 +1,5 @@
 window.addEventListener('load', () => {
-    /* logica de nuestra app */
+    /* logica de la app */
     const apiBaseUrl = 'https://ctd-todo-api.herokuapp.com/v1'
     const jwt = localStorage.getItem('token');
     const nodoNombreUsuario = this.document.querySelector('.user-info p');
