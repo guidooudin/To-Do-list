@@ -23,9 +23,12 @@ window.addEventListener("load", function () {
           if(data.jwt){
               localStorage.setItem("token", data.jwt);
               location.href="./mis-tareas.html"
+          } else{
+            alert("Usuario o contraseña incorrectos");
           }
           console.log(data);
       })
     });
+
   });
   

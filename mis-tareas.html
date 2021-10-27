@@ -15,15 +15,15 @@
     crossorigin="anonymous" referrerpolicy="no-referrer" />
 
   <!-- ----------------------------- sweet alert ----------------------------- -->
-  <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!-- <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script> -->
   <!-- CDN example (unpkg) -->
   <script src="https://unpkg.com/dayjs@1.8.21/dayjs.min.js"></script>
 
   <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 
 
-  <!-- logica de la página -->
-  <script src="./scripts/taks.js"></script>
+  
+  
 
   <title>ToDo</title>
 </head>
@@ -35,7 +35,8 @@
     </nav>
 
     <div class="user-info">
-      <p>username</p>
+      <p class="hidden">username</p>
+      <p class="usuario"></p>
       <div class="user-image"></div>
       <p id="closeApp">Cerrar sesión</i>
       </p>
@@ -83,7 +84,8 @@
   <ul class="tareas-terminadas">
 
   </ul>
-
+  <!-- logica de la página -->
+  <script src="./scripts/tasks.js" defer></script>
 </body>
 
 </html>
