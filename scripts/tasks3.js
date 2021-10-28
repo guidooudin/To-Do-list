@@ -34,9 +34,10 @@ window.addEventListener('load', () => {
         
         console.log(inputNuevaTarea.value);
         crearTarea(`${apiBaseUrl}/tasks`, jwt, nuevaTarea);
-        obtenerListaTareas(`${apiBaseUrl}/tasks`, jwt);
+        renderizarTareas(nuevaTarea);
         formulario.reset();
-    });
+
+    })
     function crearTarea(url, token, payload) {
         const settings = {
             method: 'POST',
@@ -66,6 +67,7 @@ window.addEventListener('load', () => {
             console.log(data);
             nodoNombreUsuario.innerText = data.firstName + " " + data.lastName;
     })
+    }
     //crear funcion que renderice la lista de tareas
     //la funcion debe llevar por parametro la lista de tareas
     //la funcion debe renderizar la lista de tareas en el html
@@ -75,44 +77,7 @@ window.addEventListener('load', () => {
     //En cada iteración se debe crear un boton que permita eliminar la tarea
     //En cada iteración se debe crear un boton que permita marcar como completada la tarea
     //En cada iteración se debe crear un boton que permita marcar como pendiente la tarea
-    }
-    function renderizarTareas(listaTareas) {
-        const listaTareasPendientes = document.querySelector('.tareas-pendientes');
-        const listaTareasCompletadas = document.querySelector('.tareas-terminadas');
-        listaTareas.forEach(tarea => {
-            if(tarea.completed) {
-                const fecha = new Date(tarea.createdAt);
-                const divSkeleton = document.querySelector('#skeleton');
-                const miTemplate = `<li class="tarea">
-                                    <div class="done"></div>
-                                    <div class="descripcion">
-                                    <p class="nombre">${tarea.description}</p>
-                                    <div>
-                                    <button><i id="${tarea.id}" class="fas
-                                    fa-undo-alt change"></i></button>
-                                    <button><i id="${tarea.id}" class="far
-                                    fa-trash-alt"></i></button>
-                                    </div>
-                                    </div>
-                                    </li>
-                                    `;
-              divSkeleton.innerHTML += miTemplate;
-            } else {
-                
-            if (tarea.description.length > 3){
-                const fecha = new Date(tarea.createdAt);
-                const divSkeleton = document.querySelector('#skeleton');
-                const miTemplate = `<li class="tarea">
-                <div class="not-done change" id="${tarea.id}"></div>
-                <div class="descripcion">
-                <p class="nombre">${tarea.description}</p>
-                <p class="timestamp"><i class="far
-                fa-calendar-alt"></i> ${fecha.toLocaleDateString()}</p>
-                </div>
-                </li>`
-              divSkeleton.innerHTML += miTemplate;
-            }
-            }
-        })
+    function renderizarTareas(tareas) {
+        
     }
 });
