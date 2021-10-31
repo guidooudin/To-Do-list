@@ -8,51 +8,61 @@ window.addEventListener('load', () => {
     let contenedorTareas = document.querySelector('.descripcion');
     let listadoComentarios = [];
     
-    /* Obtengo la lista comleta de tareas */
-    obtenerListaTareas(`${apiBaseUrl}/tasks`, jwt);
-    function obtenerListaTareas(url, token) {
+    /* Boton para salir sesion */
+    const botonSalir = document.querySelector('#closeApp');
+    botonSalir.addEventListener('click', () => {
+        if (confirm('¿Estas seguro que deseas cerrar sesión?')) {
+            localStorage.removeItem('token');
+            window.location.href = 'index.html';
+        }
+    });
+    /* Obtengo la lista completa de tareas */
+    obtenerListaTareas();
+    function obtenerListaTareas() {
             const settings = { method: 'GET', 
-            headers: { authorization: token } };
+            headers: { authorization: jwt } };
             
-            fetch(url,settings)
+            fetch(`${apiBaseUrl}/tasks`,settings)
             .then(response => response.json())
             .then(data => {
                 console.log(data);
-                contenedorTareas.innerHTML = '';
+                
                 renderizarTareas(data);
+                botonCambioEstado();
+                botonBorrarTarea();
         })
     };
     /* Crear nuevas tareas */
     
-    formulario.addEventListener('submit', (e) => {
-        e.preventDefault();
-        
-        const nuevaTarea = {
-            "description": inputNuevaTarea.value,
-            "completed": false
-        }
-        
-        console.log(inputNuevaTarea.value);
-        crearTarea(`${apiBaseUrl}/tasks`, jwt, nuevaTarea);
-        obtenerListaTareas(`${apiBaseUrl}/tasks`, jwt);
-        formulario.reset();
-    });
-    function crearTarea(url, token, payload) {
-        const settings = {
-            method: 'POST',
-            headers: {
-                "Content-Type": "application/json",
-                authorization : token
-            },
-            body: JSON.stringify(payload)
+    formulario.addEventListener('submit', function (event) {
+        event.preventDefault();
+        console.log("crear terea");
+        console.log(nuevaTarea.value);
+    
+        const payload = {
+          description: nuevaTarea.value.trim()
         };
-        
-            fetch(url,settings)
-            .then(response => response.json())
-            .then(data => {
-                console.log(data);
-        })
+        const settings = {
+          method: 'POST',
+          body: JSON.stringify(payload),
+          headers: {
+            'Content-Type': 'application/json',
+            authorization: jwt
+          }
         }
+        console.log("Creando un tarea en la base de datos");
+        fetch(urlTareas, settings)
+          .then(response => response.json())
+          .then(tarea => {
+            console.log(tarea)
+            obtenerListaTareas()
+          })
+          .catch(error => console.log(error));
+    
+    
+        //limpiamos el form
+        formulario.reset();
+      })
     
     /* Obtengo los datos del usuario */
     obtenerDatosUsuario(`${apiBaseUrl}/users/getMe`, jwt)
@@ -72,47 +82,109 @@ window.addEventListener('load', () => {
     //En cada iteración se debe evaluar si la tarea corresponde al listado de tareas-pendientes o listado de tareas-completadas
     //Si corresponde al listado de tareas-pendientes se debe renderizar en el html con una clase de not-done
     //Si corresponde al listado de tareas-completadas se debe renderizar en el html con una clase de done
-    //En cada iteración se debe crear un boton que permita eliminar la tarea
-    //En cada iteración se debe crear un boton que permita marcar como completada la tarea
-    //En cada iteración se debe crear un boton que permita marcar como pendiente la tarea
     }
-    function renderizarTareas(listaTareas) {
-        const listaTareasPendientes = document.querySelector('.tareas-pendientes');
-        const listaTareasCompletadas = document.querySelector('.tareas-terminadas');
-        listaTareas.forEach(tarea => {
-            if(tarea.completed) {
-                const fecha = new Date(tarea.createdAt);
-                const divSkeleton = document.querySelector('#skeleton');
-                const miTemplate = `<li class="tarea">
-                                    <div class="done"></div>
-                                    <div class="descripcion">
+    function renderizarTareas(listado) {
+  
+        const tareasPendientes = document.querySelector('.tareas-pendientes');
+        tareasPendientes.innerHTML = "";
+        const tareasTerminadas = document.querySelector('.tareas-terminadas');
+        tareasTerminadas.innerHTML = "";
+    
+        listado.forEach(tarea => {
+          //variable intermedia para manipular la fecha
+          let fecha = new Date(tarea.createdAt);
+    
+          if (tarea.completed) {
+            //lo mandamos al listado de tareas incompletas
+            tareasTerminadas.innerHTML += `
+                            <li class="tarea">
+                                <div class="done"></div>
+                                <div class="descripcion">
+                                <div>
+                                    <button><i id="${tarea.id}" class="fas fa-undo-alt change"></i></button>
+                                    <button><i id="${tarea.id}" class="far fa-trash-alt"></i></button>
+                                </div>
                                     <p class="nombre">${tarea.description}</p>
-                                    <div>
-                                    <button><i id="${tarea.id}" class="fas
-                                    fa-undo-alt change"></i></button>
-                                    <button><i id="${tarea.id}" class="far
-                                    fa-trash-alt"></i></button>
-                                    </div>
-                                    </div>
-                                    </li>
-                                    `;
-              divSkeleton.innerHTML += miTemplate;
-            } else {
-                
-            if (tarea.description.length > 3){
-                const fecha = new Date(tarea.createdAt);
-                const divSkeleton = document.querySelector('#skeleton');
-                const miTemplate = `<li class="tarea">
-                <div class="not-done change" id="${tarea.id}"></div>
-                <div class="descripcion">
-                <p class="nombre">${tarea.description}</p>
-                <p class="timestamp"><i class="far
-                fa-calendar-alt"></i> ${fecha.toLocaleDateString()}</p>
-                </div>
-                </li>`
-              divSkeleton.innerHTML += miTemplate;
-            }
-            }
+                                    <p class="timestamp"><i class="far fa-calendar-alt"></i>${fecha.toLocaleDateString()}</p>
+                                </div>
+                            </li>
+                            `
+          } else {
+            //lo mandamos al listado de tareas terminadas
+            if (tarea.description.length > 3) {
+            tareasPendientes.innerHTML += `
+                            <li class="tarea">
+                                <div class="not-done change" id="${tarea.id}"></div>
+                                <div class="descripcion">
+                                    <p class="nombre">${tarea.description}</p>
+                                    <p class="timestamp"><i class="far fa-calendar-alt"></i>${fecha.toLocaleDateString()}</p>
+                                </div>
+                            </li>
+                            `}
+          }
         })
-    }
+      }
+    //crear una funcion que cambie el estado de la tarea a completada
+    //crear una funcion que cambie el estado de la tarea a pendiente
+    const urlTareas = 'https://ctd-todo-api.herokuapp.com/v1/tasks'
+    function botonCambioEstado() {
+        const btnCambioEstado = document.querySelectorAll('.change');
+    
+        btnCambioEstado.forEach(boton => {
+          //a cada boton le asignamos una funcionalidad
+          boton.addEventListener('click', function (event) {
+            const id = event.target.id;
+            const url = `${urlTareas}/${id}`
+            const payload = {};
+    
+            if (event.target.classList.contains('fa-undo-alt')) {
+              payload.completed = false;
+            } else {
+              payload.completed = true;
+            }
+    
+            const settingsCambio = {
+              method: 'PUT',
+              headers: {
+                "Authorization": jwt,
+                "Content-type": "application/json"
+              },
+              body: JSON.stringify(payload)
+            }
+            fetch(url, settingsCambio)
+              .then(response => {
+                console.log(response.status);
+                //renderizar nuevamente las tareas
+                obtenerListaTareas();
+              })
+          })
+        });
+    
+      }
+      /* funcion para borrar las tareas */
+      function botonBorrarTarea() {
+        const btnBorrarTarea = document.querySelectorAll('.fa-trash-alt');
+    
+        btnBorrarTarea.forEach(boton => {
+          //a cada boton le asignamos una funcionalidad
+          boton.addEventListener('click', function (event) {
+            const id = event.target.id;
+            const url = `${urlTareas}/${id}`
+    
+            const settingsCambio = {
+              method: 'DELETE',
+              headers: {
+                "Authorization": jwt,
+              }
+            }
+            fetch(url, settingsCambio)
+              .then(response => {
+                console.log(response.status);
+                //renderizar nuevamente las tareas
+                obtenerListaTareas();
+              })
+          })
+        });
+    
+      }
 });
